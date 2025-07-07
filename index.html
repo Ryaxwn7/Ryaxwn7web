@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱心点击游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ffafbd, #ffc3a0);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .container {
+            width: 95%;
+            max-width: 800px;
+            height: 85vh;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        h1 {
+            color: #e91e63;
+            margin: 10px 0;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .score {
+            background: #ff4081;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4);
+            min-width: 120px;
+        }
+        
+        .progress-container {
+            width: 80%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin: 0 auto 20px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #ff4081, #ff79a9);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 70%;
+            background: rgba(255, 245, 245, 0.7);
+            border-radius: 15px;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 2px dashed #ff79a9;
+        }
+        
+        .heart {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .heart:hover {
+            transform: scale(1.1);
+        }
+        
+        .small-heart {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .large-heart {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .instructions {
+            background: rgba(255, 228, 225, 0.8);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 15px auto;
+            width: 90%;
+            font-size: 1rem;
+            color: #d81b60;
+        }
+        
+        .win-message {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
+            z-index: 10;
+            border-radius: 20px;
+        }
+        
+        .win-message.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .win-title {
+            color: #e91e63;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .win-text {
+            font-size: 1.8rem;
+            color: #ff4081;
+            text-align: center;
+            line-height: 1.6;
+            max-width: 90%;
+            margin-bottom: 30px;
+        }
+        
+        .restart-btn {
+            background: #ff4081;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4);
+        }
+        
+        .restart-btn:hover {
+            background: #e91e63;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(233, 30, 99, 0.6);
+        }
+        
+        .floating-hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .floating-heart {
+            position: absolute;
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .score {
+                font-size: 1.5rem;
+                padding: 8px 20px;
+            }
+            
+            .instructions {
+                font-size: 0.9rem;
+            }
+            
+            .win-title {
+                font-size: 2.2rem;
+            }
+            
+            .win-text {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>❤️ 爱心点击游戏 ❤️</h1>
+        
+        <div class="score-container">
+            <div class="score">分数: <span id="score-value">0</span></div>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <div class="instructions">
+            <p>点击爱心获取分数：小爱心 +10分 | 大爱心 +20分 | 达到100分即可获胜！</p>
+        </div>
+        
+        <div class="game-area" id="game-area">
+            <!-- 爱心将在这里动态生成 -->
+        </div>
+        
+        <div class="win-message" id="win-message">
+            <h2 class="win-title">恭喜你！</h2>
+            <p class="win-text">你的爱心收集已达到100分！<br>感谢你为这个世界带来更多爱 ❤️</p>
+            <button class="restart-btn" id="restart-btn">再玩一次</button>
+        </div>
+    </div>
+    
+    <div class="floating-hearts" id="floating-hearts"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const gameArea = document.getElementById('game-area');
+            const scoreValue = document.getElementById('score-value');
+            const progressBar = document.getElementById('progress-bar');
+            const winMessage = document.getElementById('win-message');
+            const restartBtn = document.getElementById('restart-btn');
+            const floatingHearts = document.getElementById('floating-hearts');
+            
+            let score = 0;
+            let hearts = [];
+            
+            // 创建背景漂浮爱心
+            function createFloatingHearts() {
+                const heartCount = 20;
+                for (let i = 0; i < heartCount; i++) {
+                    const heart = document.createElement('div');
+                    heart.classList.add('floating-heart');
+                    heart.innerHTML = '❤️';
+                    
+                    // 随机大小
+                    const size = Math.random() * 30 + 10;
+                    heart.style.fontSize = `${size}px`;
+                    
+                    // 随机位置
+                    heart.style.left = `${Math.random() * 100}%`;
+                    heart.style.top = `${Math.random() * 100}%`;
+                    
+                    // 随机动画
+                    const duration = Math.random() * 10 + 10;
+                    const delay = Math.random() * 5;
+                    heart.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+                    
+                    floatingHearts.appendChild(heart);
+                }
+            }
+            
+            // 创建漂浮动画的keyframes
+            function addFloatingAnimation() {
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    @keyframes float {
+                        0% {
+                            transform: translate(0, 0) rotate(0deg);
+                            opacity: 0.3;
+                        }
+                        50% {
+                            transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(${Math.random() * 180 - 90}deg);
+                            opacity: 0.6;
+                        }
+                        100% {
+                            transform: translate(0, 0) rotate(0deg);
+                            opacity: 0.3;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // 创建爱心元素
+            function createHeart(isLarge = false) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.classList.add(isLarge ? 'large-heart' : 'small-heart');
+                heart.innerHTML = '❤️';
+                heart.style.color = getRandomHeartColor();
+                
+                // 随机位置（确保在游戏区域内）
+                const maxX = gameArea.clientWidth - (isLarge ? 80 : 50);
+                const maxY = gameArea.clientHeight - (isLarge ? 80 : 50);
+                
+                const x = Math.floor(Math.random() * maxX);
+                const y = Math.floor(Math.random() * maxY);
+                
+                heart.style.left = `${x}px`;
+                heart.style.top = `${y}px`;
+                
+                // 点击事件
+                heart.addEventListener('click', function() {
+                    // 添加点击动画
+                    this.style.transform = 'scale(1.5)';
+                    this.style.opacity = '0';
+                    
+                    // 更新分数
+                    const points = isLarge ? 20 : 10;
+                    updateScore(points);
+                    
+                    // 移除爱心
+                    setTimeout(() => {
+                        gameArea.removeChild(this);
+                        hearts = hearts.filter(h => h !== this);
+                        
+                        // 创建新的爱心
+                        if (score < 100) {
+                            createRandomHeart();
+                        }
+                    }, 300);
+                });
+                
+                gameArea.appendChild(heart);
+                hearts.push(heart);
+                
+                return heart;
+            }
+            
+            // 创建随机爱心（80%小爱心，20%大爱心）
+            function createRandomHeart() {
+                const isLarge = Math.random() < 0.5;
+                return createHeart(isLarge);
+            }
+            
+            // 随机爱心颜色
+            function getRandomHeartColor() {
+                const colors = ['#ff4081', '#e91e63', '#d81b60', '#c2185b', '#ad1457'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            // 更新分数
+            function updateScore(points) {
+                score += points;
+                scoreValue.textContent = score;
+                
+                // 更新进度条
+                const progress = Math.min(score, 100);
+                progressBar.style.width = `${progress}%`;
+                
+                // 检查是否获胜
+                if (score >= 100) {
+                    setTimeout(showWinMessage, 500);
+                }
+            }
+            
+            // 显示胜利消息
+            function showWinMessage() {
+                winMessage.classList.add('active');
+            }
+            
+            // 重新开始游戏
+            function restartGame() {
+                // 移除所有爱心
+                hearts.forEach(heart => {
+                    if (heart.parentNode === gameArea) {
+                        gameArea.removeChild(heart);
+                    }
+                });
+                hearts = [];
+                
+                // 重置分数
+                score = 0;
+                scoreValue.textContent = '0';
+                progressBar.style.width = '0%';
+                
+                // 隐藏胜利消息
+                winMessage.classList.remove('active');
+                
+                // 创建第一个爱心
+                createRandomHeart();
+            }
+            
+            // 事件监听器
+            restartBtn.addEventListener('click', restartGame);
+            
+            // 初始化游戏
+            addFloatingAnimation();
+            createFloatingHearts();
+            createRandomHeart();
+        });
+    </script>
+</body>
+</html>
