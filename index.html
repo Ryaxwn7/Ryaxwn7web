@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>爱心点击游戏 - 相册版</title>
+    <title>❤️爱心发射~</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -594,6 +594,15 @@
                 </button>
             </div>
         </div>
+
+        <div id="album-password-modal" style="display:none; position:fixed; z-index:200; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+        <div style="background:#fff; padding:30px 30px 20px 30px; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.18); min-width:260px; text-align:center;">
+            <h3 style="color:#e91e63; margin-bottom:18px;">请输入密码</h3>
+            <input id="album-password-input" type="password" style="padding:8px 12px; font-size:1.1rem; border-radius:8px; border:1px solid #e0e0e0; width:80%; margin-bottom:12px;" placeholder="密码">
+            <div id="album-password-error" style="color:#e91e63; font-size:0.95rem; min-height:22px;"></div>
+            <button id="album-password-confirm" style="background:linear-gradient(135deg,#ff4081,#e91e63);color:#fff;border:none;padding:8px 30px;font-size:1.1rem;border-radius:50px;cursor:pointer;margin-top:8px;">确定</button>
+        </div>
+        </div>
         
         <div class="album-container" id="album-container">
             <h2 class="album-title">❤️ 🐰🐱 & 🐶 ❤️</h2>
@@ -810,9 +819,52 @@
             }
             
             // 显示相册
+            const albumPasswordModal = document.getElementById('album-password-modal');
+            const albumPasswordInput = document.getElementById('album-password-input');
+            const albumPasswordConfirm = document.getElementById('album-password-confirm');
+            const albumPasswordError = document.getElementById('album-password-error');
+            let albumUnlocked = false;
+
+            // 显示相册（带密码）
             function showAlbum() {
-                albumContainer.classList.add('active');
+                if (albumUnlocked) {
+                    albumContainer.classList.add('active');
+                } else {
+                    albumPasswordModal.style.display = 'flex';
+                    albumPasswordInput.value = '';
+                    albumPasswordError.textContent = '';
+                    albumPasswordInput.focus();
+                }
             }
+
+            // 密码校验
+            albumPasswordConfirm.addEventListener('click', function() {
+                const pwd = albumPasswordInput.value.trim();
+                // 你可以自定义密码，比如123456
+                if (pwd === '20250408') {
+                    albumUnlocked = true;
+                    albumPasswordModal.style.display = 'none';
+                    albumContainer.classList.add('active');
+                } else {
+                    albumPasswordError.textContent = '密码错误，请重试！';
+                    albumPasswordInput.value = '';
+                    albumPasswordInput.focus();
+                }
+            });
+
+            // 回车键提交
+            albumPasswordInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    albumPasswordConfirm.click();
+                }
+            });
+
+            // 点击遮罩关闭弹窗（可选）
+            albumPasswordModal.addEventListener('click', function(e) {
+                if (e.target === albumPasswordModal) {
+                    albumPasswordModal.style.display = 'none';
+                }
+            });
             
             // 返回游戏
             function backToGame() {
